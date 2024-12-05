@@ -1,7 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
-
-
+title 执行log-a提交github任务
 
 ::删除之前的记录
 del /q "D:\phpstudy_pro\WWW\git\log-a\git_log\*.*"
