@@ -2,13 +2,10 @@
 setlocal enabledelayedexpansion
 title 执行log-a提交github任务
 
+:MAIN_LOOP
 ::删除之前的记录
-del /q "D:\phpstudy_pro\WWW\git\log-a\git_log\*.*"
+del /q "D:\phpstudy_pro\WWW\git\log-a\git_log\*.*" >nul 2>&1
 
-
-
- 
- 
 REM 获取当前日期和时间
 for /f "delims=" %%a in ('wmic OS Get localdatetime ^| find "."') do set datetime=%%a
 
@@ -30,106 +27,57 @@ set "filecontent=%year%-%month%-%day% %hour%:%minute%:%second%"
 REM 创建文件
 echo %filecontent% > "%target_dir%\%filename%"
 
-
-::换行空白符
-echo ^.
-echo ^..
-echo ^...
-echo ^....
-echo ^.....
-echo ^......
-echo ^.......
-echo ^........
-::展示根目录
-echo 文件已创建：%target_dir%\%filename%
-echo ^........
-echo ^......
-echo ^.....
-echo ^....
-echo ^...
-echo ^..
-echo ^.
-
-
-
-
-
+::显示信息
+call :SHOW_MESSAGE "文件已创建：%target_dir%\%filename%"
 
 ::执行Git提交
-
-:: 获取当前脚本的路径  根目录
-cd ..
-echo 开始执行; %CD%
-
-::进入根目录 ,提交代码
-cd /d %~dp0
+cd /d "D:\phpstudy_pro\WWW\git\log-a"
 git add . 
 git commit -m "提交; %date:~0,4%-%date:~5,2%-%date:~8,2%; %time:~0,8%"
 git push -f origin master
 
-::错误提示一下,不会继续执行
-if %errorlevel% neq 0 (  
-    echo 提交失败请查看错误原因
-    ::循环执行
-	cd /d D:\phpstudy_pro\WWW\git\log-a
-	call test.bat
-) 
-	
-::换行空白符
-echo ^.
-echo ^..
-echo ^...
-echo ^....
-echo ^.....
-echo ^......
-echo ^.......
-echo ^........
-::展示根目录
-echo 已执行完成 %CD%
-echo ^........
-echo ^......
-echo ^.....
-echo ^....
-echo ^...
-echo ^..
-echo ^.
+if errorlevel 1 (
+    call :SHOW_MESSAGE "提交失败请查看错误原因"
+    timeout /t 10 >nul
+    goto MAIN_LOOP
+)
 
-
+call :SHOW_MESSAGE "已执行完成 %CD%"
 
 ::获取20-120随机数
 set /a randomNumber=20+%RANDOM% %% 101  
-::换行空白符
-echo ^.
-echo ^..
-echo ^...
-echo ^....
-echo ^.....
-echo ^......
-echo ^.......
-echo ^........
-::随机数
-echo 随机数为:%randomNumber%
-echo ^........
-echo ^......
-echo ^.....
-echo ^....
-echo ^...
-echo ^..
-echo ^.
-
-
-
+call :SHOW_MESSAGE "随机数为:%randomNumber%"
 
 ::隔随机(20-120)秒执行一次
-timeout /t %randomNumber% > nul 
-
-::1秒执行一次
-::timeout /t 1 > nul 
-
+timeout /t %randomNumber% >nul 
 
 ::循环执行
-cd /d D:\phpstudy_pro\WWW\git\log-a
-call test.bat
+goto MAIN_LOOP
+:: ========== 函数定义区域 ==========
 
- 
- 
+:SHOW_MESSAGE
+echo.
+echo..
+echo...
+echo....
+echo.....
+echo......
+echo.......
+echo........
+echo %~1
+echo........
+echo.......
+echo......
+echo.....
+echo....
+echo...
+echo..
+echo.
+goto :eof
+
+:ERROR_HANDLER
+call :SHOW_MESSAGE "发生错误，10秒后重试..."
+timeout /t 10 >nul
+goto MAIN_LOOP
+
+:: ========== 脚本结束 ==========
